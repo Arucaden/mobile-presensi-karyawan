@@ -30,11 +30,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  camera: ^0.10.4 # Gunakan versi terbaru 2222
+  path_provider: ^2.0.11 # Untuk menyimpan gambar 2222
+  path: ^1.8.2 # Untuk membuat path platform-independent 2222
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  google_mlkit_face_detection: ^0.12.0
 
 dev_dependencies:
   flutter_test:
