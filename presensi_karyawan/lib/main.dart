@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/splash_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/attendance_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,12 +10,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Login App',
-      theme: ThemeData(
-        primarySwatch: Colors.purple,
-      ),
-      home: SplashScreen(),
+      title: 'Face Recognition Attendance',
+      initialRoute: '/',
+      routes: {
+        '/': (context) => AttendanceScreen(),
+      },
     );
   }
 }
-

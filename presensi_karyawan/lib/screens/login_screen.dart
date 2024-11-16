@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:presensi_karyawan/screens/home_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:presensi_karyawan/screens/attendance_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -14,13 +15,13 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   // Fungsi untuk login ke backend
-  Future<void> _login() async {
-    setState(() {
-      _isLoading = true;
+Future<void> _login() async {
+  setState(() {
+    _isLoading = true;
     });
 
     final response = await http.post(
-      Uri.parse('http://192.168.1.40:8000/api/login'), // Ganti dengan URL Laravel API
+      Uri.parse('http://192.168.6.118:8000/api/login'), // Ganti dengan URL Laravel API
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'email': _emailController.text,
@@ -44,6 +45,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Navigasi ke halaman Home
       _navigateToHome(context);
+    } else if (response.statusCode == 403) {
+      // Jika respons 403, berarti user role bukan 'cat'
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Admin tidak diperkenankan login di mobile!")),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Login gagal, periksa email dan password")),
@@ -51,10 +57,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+
   void _navigateToHome(BuildContext context) {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
+      MaterialPageRoute(builder: (context) => AttendanceScreen()),
     );
   }
 
