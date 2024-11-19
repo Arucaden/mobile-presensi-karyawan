@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as img;
@@ -103,20 +104,18 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             height: height,
           );
 
+          // After resizing the face image
           final resizedFace = img.copyResize(
             croppedFace,
-            width: 160,
-            height: 160,
+            width: 224,
+            height: 224,
           );
 
-          // Normalize image to [-1, 1]
-          List<double> input = resizedFace
-              .getBytes()
-              .map((pixel) => (pixel - 127.5) / 127.5)
-              .toList();
+          // Get the pixel values as Uint8List
+          Uint8List input = resizedFace.getBytes();
 
-          // Predict face vector with TFLite
-          final faceVector = await _tfliteService.predict(input);
+          // Predict
+          final faceVector = await _tfliteService.predict(input.map((e) => e.toDouble()).toList());
 
           // Send to Laravel
           await _sendToLaravel(faceVector);

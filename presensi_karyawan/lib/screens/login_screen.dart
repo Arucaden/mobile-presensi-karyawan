@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-import 'package:presensi_karyawan/screens/attendance_screen.dart';
+import 'package:presensi_karyawan/services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -10,131 +7,63 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _authService = AuthService();
   bool _isLoading = false;
 
-  // Fungsi untuk login ke backend
-Future<void> _login() async {
-  setState(() {
-    _isLoading = true;
+  void _login() async {
+    setState(() {
+      _isLoading = true;
     });
 
-    final response = await http.post(
-      Uri.parse('http://192.168.6.118:8000/api/login'), // Ganti dengan URL Laravel API
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'email': _emailController.text,
-        'password': _passwordController.text,
-      }),
-    );
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    final result = await _authService.login(email, password);
 
     setState(() {
       _isLoading = false;
     });
 
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      final String token = responseData['access_token'];
-
-      // Simpan token (misalnya dengan shared_preferences atau secure storage)
-      print('Token: $token');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login berhasil!")),
-      );
-
-      // Navigasi ke halaman Home
-      _navigateToHome(context);
-    } else if (response.statusCode == 403) {
-      // Jika respons 403, berarti user role bukan 'cat'
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Admin tidak diperkenankan login di mobile!")),
-      );
+    if (result['success']) {
+      // Jika login berhasil, arahkan ke halaman utama
+      Navigator.pushReplacementNamed(context, '/home');
     } else {
+      // Tampilkan pesan error jika login gagal
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Login gagal, periksa email dan password")),
+        SnackBar(content: Text(result['message'])),
       );
     }
-  }
-
-
-  void _navigateToHome(BuildContext context) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => AttendanceScreen()),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.black),
+        title: Text('Login'),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Text(
-                'SISTEM',
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.purple,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            SizedBox(height: 8),
-            Center(
-              child: Text(
-                'Masukkan identitas',
-                style: TextStyle(fontSize: 16, color: Colors.purple[300]),
-              ),
-            ),
-            SizedBox(height: 32),
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-              ),
+              decoration: InputDecoration(labelText: 'Email'),
+              keyboardType: TextInputType.emailAddress,
             ),
-            SizedBox(height: 16),
             TextField(
               controller: _passwordController,
+              decoration: InputDecoration(labelText: 'Password'),
               obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
             ),
-            SizedBox(height: 32),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.purple,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+            const SizedBox(height: 20),
+            _isLoading
+                ? CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: _login,
+                    child: Text('Login'),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                ),
-                onPressed: _isLoading ? null : _login,
-                child: _isLoading
-                    ? CircularProgressIndicator(
-                        color: Colors.white,
-                      )
-                    : Text(
-                        'Masuk',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-              ),
-            ),
           ],
         ),
       ),
