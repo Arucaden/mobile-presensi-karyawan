@@ -24,7 +24,7 @@ class _FaceRecognitionPageState extends State<FaceRecognitionPage> {
   // Fungsi untuk mengirim gambar ke Laravel
   Future<void> _sendImageToServer() async {
     if (_image == null) return;
-    final uri = Uri.parse('http://192.168.1.40:8000/api/check-face-match');
+    final uri = Uri.parse('http://192.168.18.139:8000/api/check-face-match');
     final request = http.MultipartRequest('POST', uri)
       ..files.add(await http.MultipartFile.fromPath('image', _image!.path));
     final response = await request.send();

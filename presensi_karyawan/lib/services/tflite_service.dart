@@ -2,9 +2,9 @@ import 'dart:typed_data';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 class TFLiteService {
-  late Interpreter _interpreter;
-  late List<int> _inputShape;
-  late List<int> _outputShape;
+  Interpreter? _interpreter;
+  List<int>? _inputShape;
+  List<int>? _outputShape;
 
   static final TFLiteService _instance = TFLiteService._internal();
 
@@ -17,11 +17,11 @@ class TFLiteService {
   /// Load the TFLite model
   Future<void> loadModel() async {
     try {
-      _interpreter = await Interpreter.fromAsset('facenet_model.tflite');
+      _interpreter = await Interpreter.fromAsset('assets/mobilenet.tflite');
 
-      // Ambil bentuk tensor input dan output
-      _inputShape = _interpreter.getInputTensor(0).shape;
-      _outputShape = _interpreter.getOutputTensor(0).shape;
+      // Get input and output tensor shapes
+      _inputShape = _interpreter!.getInputTensor(0).shape;
+      _outputShape = _interpreter!.getOutputTensor(0).shape;
 
       print("Model loaded successfully!");
       print("Input Shape: $_inputShape");
@@ -39,23 +39,22 @@ class TFLiteService {
         throw Exception("Interpreter is not initialized. Call loadModel() first.");
       }
 
-      // Validasi ukuran input
-      final inputSize = _inputShape.reduce((a, b) => a * b);
+      // Validate input size
+      final inputSize = _inputShape!.reduce((a, b) => a * b);
       if (inputVector.length != inputSize) {
         throw Exception(
           "Input size mismatch: Expected $inputSize but got ${inputVector.length}",
         );
       }
 
-      // Siapkan input dan output untuk model
-      final input = Float32List.fromList(inputVector); // Ubah input menjadi Float32List
-      final output = List.generate(_outputShape.reduce((a, b) => a * b), (_) => 0.0)
-          .reshape([_outputShape[0], _outputShape[1]]); // Hasil output
+      // Prepare input and output for the model
+      final input = inputVector.reshape(_inputShape!);
+      final output = List.generate(_outputShape![0], (_) => List.filled(_outputShape![1], 0.0));
 
-      // Jalankan model
-      _interpreter.run(input, output);
+      // Run the model
+      _interpreter!.run(input, output);
 
-      // Flatten hasil output menjadi List<double>
+      // Flatten the output into a List<double>
       return output.expand((e) => e).cast<double>().toList();
     } catch (e) {
       print("Error during prediction: $e");
@@ -65,6 +64,6 @@ class TFLiteService {
 
   /// Close the interpreter when done
   void close() {
-    _interpreter.close();
+    _interpreter?.close();
   }
 }

@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class APIService {
-  final String baseUrl = 'http://192.168.1.40:8000/api';
+  final String baseUrl = 'http://192.168.18.139:8000/api';
 
   Future<void> sendFaceVector(List<double> faceVector, String idKaryawan) async {
     final url = Uri.parse('$baseUrl/check-face-match');
