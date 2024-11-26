@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
   // Ganti URL dengan endpoint API Anda
-  static const String baseUrl = 'http://192.168.205.179:8000/api';
+  static const String baseUrl = 'http://192.168.18.141:8000/api';
 
   // Instance untuk menyimpan token
   final _storage = const FlutterSecureStorage();
@@ -42,7 +42,24 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    await _storage.delete(key: 'access_token');
+    final token = await _storage.read(key: 'access_token'); // Ambil token dari storage
+
+    if (token != null) {
+      final response = await http.post(
+        Uri.parse('$baseUrl/logout'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Hapus token di storage jika logout berhasil
+        await _storage.delete(key: 'access_token');
+      } else {
+        throw Exception('Failed to logout');
+      }
+    }
   }
 
   Future<Map<String, dynamic>> getAttendanceHistory() async {

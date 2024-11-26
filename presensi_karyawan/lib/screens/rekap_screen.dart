@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:presensi_karyawan/services/api_service.dart';
+import 'package:presensi_karyawan/services/auth_service.dart';
 
 class RekapScreen extends StatefulWidget {
   @override
@@ -7,8 +7,7 @@ class RekapScreen extends StatefulWidget {
 }
 
 class _RekapScreenState extends State<RekapScreen> {
-  final _authService = AuthService();
-  String token = 'your-jwt-token'; // Replace with actual token
+  final _authService = AuthService(); // Replace with actual token
   bool isLoading = true;
   Map<String, dynamic>? rekapData;
   String? errorMessage;
@@ -70,23 +69,23 @@ class _RekapScreenState extends State<RekapScreen> {
                           ),
                           SizedBox(height: 16),
                           Text(
-                            'Employee ID: ${rekapData!['karyawan_id']}',
+                            'Employee ID: 1',
                             style: TextStyle(fontSize: 16),
                           ),
                           Text(
-                            'Name: ${rekapData!['nama']}',
+                            'Name: Budie Arie',
                             style: TextStyle(fontSize: 16),
                           ),
                           Text(
-                            'Total Days: ${rekapData!['total_hari']}',
+                            'Total Days: 0',
                             style: TextStyle(fontSize: 16),
                           ),
                           Text(
-                            'Present Days: ${rekapData!['hadir']}',
+                            'Present Days: 40:00',
                             style: TextStyle(fontSize: 16),
                           ),
                           Text(
-                            'Absent Days: ${rekapData!['absen']}',
+                            'Absent Days: 00.00',
                             style: TextStyle(fontSize: 16),
                           ),
                         ],

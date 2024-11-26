@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:presensi_karyawan/services/api_service.dart';
+import 'package:presensi_karyawan/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -7,20 +7,17 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService();
   bool _isLoading = false;
+  final AuthService _apiService = AuthService();
 
   void _login() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    final email = _emailController.text.trim();
+    // Tambahkan logika login Anda di sini
+    final email = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
-    final result = await _authService.login(email, password);
+    final result = await _apiService.login(email, password);
 
     setState(() {
       _isLoading = false;
@@ -35,34 +32,88 @@ class _LoginScreenState extends State<LoginScreen> {
         SnackBar(content: Text(result['message'])),
       );
     }
+    
+    setState(() {
+      _isLoading = true;
+    });
+    Future.delayed(Duration(seconds: 2), () {
+      setState(() {
+        _isLoading = false;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Login'),
-      ),
+      backgroundColor: Colors.white, // Warna latar belakang
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
+            Center(
+              child: Text(
+                'SMK',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.purple, // Warna ungu
+                ),
+              ),
             ),
+            SizedBox(height: 8),
+            Center(
+              child: Text(
+                'Selamat datang',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[700],
+                ),
+              ),
+            ),
+            SizedBox(height: 32),
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
             TextField(
               controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
               obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 64),
             _isLoading
-                ? CircularProgressIndicator()
+                ? Center(child: CircularProgressIndicator())
                 : ElevatedButton(
                     onPressed: _login,
-                    child: Text('Login'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple, // Warna ungu
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: Text(
+                      'Masuk',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
           ],
         ),

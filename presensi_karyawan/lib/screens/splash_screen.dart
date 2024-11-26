@@ -1,41 +1,45 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Navigasi otomatis ke halaman login setelah 3 detik
+    Timer(Duration(seconds: 3), () {
+      Navigator.pushReplacementNamed(context, '/login');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF6EFF7), // Warna latar belakang
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.account_circle,
-              size: 80,
-              color: Colors.purple[200],
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 96, vertical: 16),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                );
-              },
-              child: Text(
-                'Mulai',
-                style: TextStyle(fontSize: 18, color: Colors.white),
+        child: Container(
+          width: 100,
+          height: 100,
+          decoration: BoxDecoration(
+            color: Color(0xFFE6DCE7), // Warna background logo
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Center(
+            child: Text(
+              'K', // Huruf K sebagai logo
+              style: TextStyle(
+                color: Color(0xFF6F4B8B), // Warna teks
+                fontSize: 50,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

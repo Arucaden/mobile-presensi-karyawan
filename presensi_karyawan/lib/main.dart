@@ -1,55 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:presensi_karyawan/screens/face_detection_page.dart';
 import 'package:presensi_karyawan/screens/login_screen.dart';
 import 'package:presensi_karyawan/screens/history_screen.dart';
 import 'package:presensi_karyawan/screens/rekap_screen.dart';
+import 'package:presensi_karyawan/screens/settings_page.dart';
+import 'package:presensi_karyawan/screens/splash_screen.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Attendance App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      initialRoute: '/login',
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+      ),
+      initialRoute: '/',
       routes: {
+        '/' : (context) => const SplashScreen(),
         '/login': (context) => LoginScreen(),
-        '/home': (context) => HomeScreen(),
-        '/history': (context) => HistoryScreen(),
-        '/rekap' : (context) => RekapScreen(),
+        '/home': (context) => const MainScreen(),
       },
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _currentIndex = 0;
+
+  final List<Widget> _pages = [
+    HistoryScreen(),
+    RekapScreen(),
+    FaceDetectionPage(),
+    SettingsPage()
+  ];
+
+  // List judul halaman sesuai dengan tab
+  final List<String> _titles = [
+    'View Attendance',
+    'Rekap Attendance',
+    'Presensi',
+    'Setting'
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text(_titles[_currentIndex]),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/history');
-              },
-              child: Text('View Attendance'),
-            ),
-            SizedBox(height: 16), // Spacer between buttons
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/rekap');
-              },
-              child: Text('Rekap Attendance'),
-            ),
-          ],
-        ),
+      body: _pages[_currentIndex], // Menampilkan halaman sesuai index tab
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index; // Mengubah tab yang aktif
+          });
+        },
+        selectedItemColor: Colors.purple,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'View Attendance',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.bar_chart),
+            label: 'Rekap',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.camera_alt),
+            label: 'Presensi',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
       ),
     );
   }
