@@ -7,7 +7,7 @@ import 'package:presensi_karyawan/screens/settings_page.dart';
 import 'package:presensi_karyawan/screens/splash_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -44,8 +44,8 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _pages = [
     HistoryScreen(),
     RekapScreen(),
-    FaceDetectionPage(),
-    SettingsPage()
+    const FaceDetectionPage(),
+    const SettingsPage()
   ];
 
   // List judul halaman sesuai dengan tab

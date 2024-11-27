@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:presensi_karyawan/services/auth_service.dart';
+import 'package:presensi_karyawan/services/all_in_one_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -10,14 +10,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-  final AuthService _apiService = AuthService();
+  final _aioService = AllInOneService();
 
   void _login() async {
     // Tambahkan logika login Anda di sini
     final email = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
-    final result = await _apiService.login(email, password);
+    final result = await _aioService.login(email, password);
 
     setState(() {
       _isLoading = false;

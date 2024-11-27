@@ -1,47 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:presensi_karyawan/services/auth_service.dart';
+import 'package:presensi_karyawan/services/all_in_one_service.dart';
+import 'package:presensi_karyawan/models/karyawan_model.dart';
 
-class SettingsPage extends StatelessWidget {
-  final AuthService _authService = AuthService();
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
 
-  SettingsPage({super.key});
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
 
-  // Fungsi untuk mendapatkan inisial dari nama
-  String getInitials(String name) {
-    if (name.isEmpty) return "?";
-    return name.trim()[0].toUpperCase(); // Ambil huruf pertama dan kapitalisasi
+class _SettingsPageState extends State<SettingsPage> {
+  final _aioService = AllInOneService();
+  Karyawan? _karyawan;
+  bool _isLoading = true;
+  String _errorMessage = '';
+
+  Future<void> _fetchKaryawanData() async {
+    try {
+      final data = await _aioService.fetchKaryawanData();
+      setState(() {
+        _karyawan = Karyawan.fromJson(data);
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
   }
 
-  // Fungsi untuk menampilkan dialog konfirmasi logout
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Konfirmasi Logout'),
-          content: const Text('Apakah Anda yakin ingin keluar?'),
+          content: const Text('Apakah anda yakin ingin keluar?'),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
+                Navigator.of(context).pop();
               },
               child: const Text('Batal'),
             ),
             ElevatedButton(
               onPressed: () async {
-                Navigator.of(context).pop(); // Tutup dialog
+                Navigator.of(context).pop();
                 try {
-                  await _authService.logout(); // Panggil fungsi logout
-                  Navigator.pushReplacementNamed(context, '/login'); // Redirect ke halaman login
+                  await _aioService.logout();
+                  Navigator.pushReplacementNamed(context, '/login');
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Logout gagal: $e')),
                   );
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple, // Warna tombol "Keluar"
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
               child: const Text('Keluar', style: TextStyle(color: Colors.white)),
             ),
           ],
@@ -51,78 +66,113 @@ class SettingsPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final String namaKaryawan = "Daffa Maulana"; // Contoh nama karyawan
-    final String jabatanKaryawan = "UI/UX Designer"; // Contoh jabatan karyawan
+  void initState() {
+    super.initState();
+    _fetchKaryawanData();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Foto profil, nama, dan jabatan
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.purple, // Warna latar belakang avatar
-                  child: Text(
-                    getInitials(namaKaryawan), // Inisial diambil dari nama
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage.isNotEmpty
+              ? Center(child: Text(_errorMessage))
+              : _karyawan == null
+                  ? const Center(child: Text('Data karyawan tidak ditemukan.'))
+                  : Column(
+                      children: [
+                        // Header dengan gradien dan avatar
+                        Stack(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              height: 210,
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Colors.purple, Colors.deepPurple],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(8),
+                                  bottomRight: Radius.circular(8),
+                                ),
+                              ),
+                            ),
+                            Center(
+                              child: Column(
+                                children: [
+                                  const SizedBox(height: 48),
+                                  CircleAvatar(
+                                    radius: 50,
+                                    backgroundColor: Colors.white,
+                                    child: Text(
+                                      _karyawan!.nama.substring(0, 1).toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: 40,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.purple,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    _karyawan!.nama,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        // Informasi karyawan
+                        ListTile(
+                          leading: const Icon(Icons.cake, color: Colors.purple),
+                          title: Text('Tanggal Lahir: ${_karyawan!.tanggalLahir}'),
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.phone, color: Colors.purple),
+                          title: Text('No Telepon: ${_karyawan!.noTelepon}'),
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.email, color: Colors.purple),
+                          title: Text('Email: ${_karyawan!.email}'),
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.work, color: Colors.purple),
+                          title: Text('Jabatan: ${_karyawan!.posisi?.namaPosisi ?? "-"}'),
+                        ),
+                        const Spacer(),
+                        // Tombol Logout
+                        ElevatedButton(
+                          onPressed: () {
+                            _showLogoutDialog(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.purple,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            minimumSize: const Size(double.infinity, 50),
+                          ),
+                          child: const Text(
+                            'Logout',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      namaKaryawan,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      jabatanKaryawan,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const Spacer(),
-            // Tombol Logout
-            ElevatedButton(
-              onPressed: () {
-                _showLogoutDialog(context); // Tampilkan dialog konfirmasi
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              child: const Text(
-                'Logout',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:presensi_karyawan/services/auth_service.dart';
+import 'package:presensi_karyawan/services/all_in_one_service.dart';
 
 class HistoryScreen extends StatefulWidget {
   @override
@@ -7,10 +7,29 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  final _authService = AuthService();
+  final _aioService = AllInOneService();
   bool _isLoading = true;
   List<dynamic> _attendanceHistory = [];
   Map<String, dynamic>? _employeeData;
+
+  // State untuk filter
+  String _selectedMonth = '01'; // Default Januari
+  String _selectedYear = DateTime.now().year.toString(); // Default tahun sekarang
+
+  final List<String> _months = [
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember',
+  ];
 
   @override
   void initState() {
@@ -23,7 +42,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       _isLoading = true;
     });
 
-    final result = await _authService.getAttendanceHistory();
+    final result = await _aioService.getAttendanceHistory();
 
     setState(() {
       _isLoading = false;
@@ -42,9 +61,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Attendance History'),
-      ),
+      backgroundColor: Colors.deepPurple[50],
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
           : _employeeData == null
@@ -54,40 +71,176 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Employee: ${_employeeData!['nama']}',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      // Dropdown untuk memilih bulan dan tahun
+                      Row(
+                        children: [
+                          // Dropdown untuk bulan
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              value: _months[int.parse(_selectedMonth) - 1],
+                              decoration: InputDecoration(
+                                labelText: 'Pilih Bulan',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: _months.map((month) {
+                                return DropdownMenuItem(
+                                  value: month,
+                                  child: Text(
+                                    month,
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedMonth =
+                                      (_months.indexOf(value!) + 1).toString().padLeft(2, '0');
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Dropdown untuk tahun
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              value: _selectedYear,
+                              decoration: InputDecoration(
+                                labelText: 'Pilih Tahun',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: List.generate(5, (index) {
+                                final year = (DateTime.now().year - index).toString();
+                                return DropdownMenuItem(
+                                  value: year,
+                                  child: Text(
+                                    year,
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                );
+                              }),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedYear = value!;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 8),
-                      // Text('Position: ${_employeeData!['jabatan']}'),
+                      const SizedBox(height: 16),
+                      // Divider
                       Divider(),
+                      // Menampilkan data absensi yang difilter
                       Expanded(
                         child: _attendanceHistory.isEmpty
                             ? Center(child: Text('No attendance records found'))
-                            : ListView.builder(
-                                itemCount: _attendanceHistory.length,
-                                itemBuilder: (context, index) {
-                                  final attendance = _attendanceHistory[index];
-                                  return Card(
-                                    child: ListTile(
-                                      title: Text('Date: ${attendance['tanggal']}'),
-                                      subtitle: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text('Check-in: ${attendance['absen_masuk'] ?? '-'}'),
-                                          Text('Check-out: ${attendance['absen_keluar'] ?? '-'}'),
-                                          Text('Present: ${attendance['hadir'] ?? '-'}'),
-                                          Text('Note: ${attendance['keterangan'] ?? 'No notes available'}'),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
+                            : _buildFilteredAttendanceList(),
                       ),
                     ],
                   ),
                 ),
+    );
+  }
+
+  // Fungsi untuk memfilter data berdasarkan bulan dan tahun yang dipilih
+  Widget _buildFilteredAttendanceList() {
+    final filteredData = _attendanceHistory.where((attendance) {
+      final dateParts = attendance['tanggal'].split('-');
+      final year = dateParts[0];
+      final month = dateParts[1];
+      return year == _selectedYear && month == _selectedMonth;
+    }).toList();
+
+    if (filteredData.isEmpty) {
+      return Center(child: Text('No records for selected month and year.'));
+    }
+
+    return ListView.builder(
+      itemCount: filteredData.length,
+      itemBuilder: (context, index) {
+        final attendance = filteredData[index];
+        final date = attendance['tanggal'];
+        final totalHours = attendance['jam'] ?? 0;
+        final aisData = totalHours > 0 ? attendance['AIS'] : '-';
+
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header tanggal dan AIS data
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurple,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Tanggal: $date',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        'Total Hours: $totalHours',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Detail absensi
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.arrow_forward, color: Colors.deepPurple),
+                            SizedBox(width: 4),
+                            Text('Masuk: ${attendance['absen_masuk'] ?? '-'}'),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Icon(Icons.arrow_back, color: Colors.red[300]),
+                            SizedBox(width: 4),
+                            Text('Pulang: ${attendance['absen_keluar'] ?? '-'}'),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        
+                        Row(
+                          children: [
+                            Text(
+                              'Note: ${attendance['keterangan'] ?? 'No notes available'}',
+                              style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                color: Colors.grey[600],
+                                ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

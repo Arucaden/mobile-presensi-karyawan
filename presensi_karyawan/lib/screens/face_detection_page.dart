@@ -1,10 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:presensi_karyawan/services/all_in_one_service.dart';
 
 class FaceDetectionPage extends StatefulWidget {
+  const FaceDetectionPage({super.key});
+
   @override
   _FaceDetectionPageState createState() => _FaceDetectionPageState();
 }
@@ -15,6 +17,9 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
   late FaceDetector _faceDetector;
   List<CameraDescription> cameras = [];
   int selectedCameraIndex = 0;
+
+  // Instance of FaceDetectionService
+  final _faceDetectionService = AllInOneService();
 
   @override
   void initState() {
@@ -97,11 +102,13 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
       if (faces.isNotEmpty) {
         print("Face(s) detected: ${faces.length}");
 
-        // Send image for further processing
+        // Convert image to base64
         final bytes = await picture.readAsBytes();
         final base64Image = base64Encode(bytes);
 
-        await _sendFaceData({'image': base64Image});
+        // Send data to backend via FaceDetectionService
+        final message = await _faceDetectionService.sendFaceData({'image': base64Image});
+        print(message);
       } else {
         print("No faces detected.");
       }
@@ -109,26 +116,6 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
       print('Error detecting faces: $e');
     } finally {
       isDetecting = false;
-    }
-  }
-
-  Future<void> _sendFaceData(Map<String, dynamic> faceData) async {
-    final url = 'http://192.168.18.141:8000/api/face-recognition';
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(faceData),
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        print(responseData['message']);
-      } else {
-        print('Face not recognized.');
-      }
-    } catch (e) {
-      print('Error sending face data: $e');
     }
   }
 

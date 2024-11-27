@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:presensi_karyawan/services/auth_service.dart';
+import 'package:presensi_karyawan/services/all_in_one_service.dart';
 
 class RekapScreen extends StatefulWidget {
   @override
@@ -7,7 +7,7 @@ class RekapScreen extends StatefulWidget {
 }
 
 class _RekapScreenState extends State<RekapScreen> {
-  final _authService = AuthService(); // Replace with actual token
+  final _aioService = AllInOneService(); // Replace with actual token
   bool isLoading = true;
   Map<String, dynamic>? rekapData;
   String? errorMessage;
@@ -24,7 +24,7 @@ class _RekapScreenState extends State<RekapScreen> {
       errorMessage = null;
     });
 
-    final result = await _authService.getAttendanceHistory();
+    final result = await _aioService.getAttendanceHistory();
 
     if (result['success'] == true) {
       setState(() {
