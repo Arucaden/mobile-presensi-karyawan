@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AllInOneService {
   // Ganti URL dengan endpoint API Anda
-  static const String baseUrl = 'http://192.168.18.141:8000/api';
+  static const String baseUrl = 'http://192.168.1.40:8000/api';
 
   // Instance untuk menyimpan token
   final _storage = const FlutterSecureStorage();

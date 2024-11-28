@@ -133,7 +133,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       // Menampilkan data absensi yang difilter
                       Expanded(
                         child: _attendanceHistory.isEmpty
-                            ? Center(child: Text('No attendance records found'))
+                            ? Center(child: Text('Tidak ada data presensi'))
                             : _buildFilteredAttendanceList(),
                       ),
                     ],
@@ -152,7 +152,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }).toList();
 
     if (filteredData.isEmpty) {
-      return Center(child: Text('No records for selected month and year.'));
+      return Center(child: Text('Tidak ada data di bulan dan tahun yang dipilih.'));
     }
 
     return ListView.builder(
@@ -188,7 +188,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ),
                       ),
                       Text(
-                        'Total Hours: $totalHours',
+                        'Total Jam: $totalHours',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -202,37 +202,49 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.arrow_forward, color: Colors.deepPurple),
-                            SizedBox(width: 4),
-                            Text('Masuk: ${attendance['absen_masuk'] ?? '-'}'),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Icon(Icons.arrow_back, color: Colors.red[300]),
-                            SizedBox(width: 4),
-                            Text('Pulang: ${attendance['absen_keluar'] ?? '-'}'),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        
-                        Row(
-                          children: [
-                            Text(
-                              'Note: ${attendance['keterangan'] ?? 'No notes available'}',
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Check-in row
+                          Row(
+                            children: [
+                              Icon(Icons.arrow_forward, color: Colors.deepPurple),
+                              SizedBox(width: 4),
+                              Text('Masuk: ${attendance['absen_masuk'] ?? '-'}'),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          // Check-out row
+                          Row(
+                            children: [
+                              Icon(Icons.arrow_back, color: Colors.red[300]),
+                              SizedBox(width: 4),
+                              Text('Pulang: ${attendance['absen_keluar'] ?? '-'}'),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          // Notes container
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.deepPurple[50],
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              'Keterangan: ${attendance['keterangan'] ?? 'tidak ada keterangan'}',
                               style: TextStyle(
                                 fontStyle: FontStyle.italic,
-                                color: Colors.grey[600],
-                                ),
+                                color: Colors.deepPurple[400],
+                              ),
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 3,
                             ),
-                          ],
-                        )
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
