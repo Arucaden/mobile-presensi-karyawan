@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AllInOneService {
   // Ganti URL dengan endpoint API Anda
-  static const String baseUrl = 'http://192.168.1.40:8000/api';
+  static const String baseUrl = 'http://192.168.18.141:8000/api';
 
   // Instance untuk menyimpan token
   final _storage = const FlutterSecureStorage();
@@ -131,21 +132,43 @@ class AllInOneService {
     }
   }
 
-  Future<String> sendFaceData(Map<String, dynamic> faceData) async {
+  Future<String> sendFaceData(File imageFile) async {
     final url = Uri.parse('$baseUrl/face-recognition');
 
     try {
+      // Read and encode the image
+      List<int> imageBytes = await imageFile.readAsBytes();
+      String base64Image = base64Encode(imageBytes);
+
+      // Prepare the face data
+      Map<String, dynamic> faceData = {
+        'image': base64Image,
+      };
+
+      // Get the API token (if authentication is required)
+      final token = await getToken();
+
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: json.encode(faceData),
       );
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         return responseData['message'] ?? 'Face recognized successfully';
+      } else if (response.statusCode == 401) {
+        final responseData = json.decode(response.body);
+        return responseData['message'] ?? 'Face not recognized.';
+      } else if (response.statusCode == 400) {
+        final responseData = json.decode(response.body);
+        return responseData['message'] ?? 'Invalid input.';
       } else {
-        return 'Face not recognized.';
+        final responseData = json.decode(response.body);
+        return responseData['message'] ?? 'An error occurred.';
       }
     } catch (e) {
       print('Error sending face data: $e');

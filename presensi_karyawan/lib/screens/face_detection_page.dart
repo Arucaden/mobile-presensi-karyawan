@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -18,7 +19,7 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
   List<CameraDescription> cameras = [];
   int selectedCameraIndex = 0;
 
-  // Instance of FaceDetectionService
+  // Instance of AllInOneService
   final _faceDetectionService = AllInOneService();
 
   @override
@@ -102,12 +103,11 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
       if (faces.isNotEmpty) {
         print("Face(s) detected: ${faces.length}");
 
-        // Convert image to base64
-        final bytes = await picture.readAsBytes();
-        final base64Image = base64Encode(bytes);
+        // Convert captured image to File
+        final imageFile = File(picture.path);
 
         // Send data to backend via FaceDetectionService
-        final message = await _faceDetectionService.sendFaceData({'image': base64Image});
+        final message = await _faceDetectionService.sendFaceData(imageFile);
         print(message);
       } else {
         print("No faces detected.");
