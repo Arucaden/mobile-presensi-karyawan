@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:presensi_karyawan/models/rekap_absensi_model.dart';
 
 class AllInOneService {
   // Ganti URL dengan endpoint API Anda
@@ -92,7 +93,13 @@ class AllInOneService {
     }
   }
 
-  Future<Map<String, dynamic>> getRekapByLoggedInUser(String token) async {
+  Future<Map<String, dynamic>> getRekapByLoggedInUser() async {
+    final token = await getToken(); // Get the token from storage
+
+    if (token == null) {
+      return {'success': false, 'message': 'Token not found'};
+    }
+
     final url = Uri.parse('$baseUrl/rekap-absensi');
 
     try {
@@ -106,21 +113,19 @@ class AllInOneService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+
         if (data['success'] == true) {
-          return {
-            'success': true,
-            'data': data['data'],
-          };
+          // Parse the data into RekapAbsensi model
+          final rekapAbsensi = RekapAbsensi.fromJson(data['data']);
+          return {'success': true, 'data': rekapAbsensi};
         } else {
-          return {
-            'success': false,
-            'message': data['message'],
-          };
+          return {'success': false, 'message': data['message']};
         }
       } else {
         return {
           'success': false,
-          'message': 'Failed to fetch attendance recap. Status code: ${response.statusCode}',
+          'message':
+              'Failed to fetch attendance recap. Status code: ${response.statusCode}',
         };
       }
     } catch (e) {
@@ -145,7 +150,7 @@ class AllInOneService {
         'image': base64Image,
       };
 
-      // Get the API token (if authentication is required)
+      // Get the API token
       final token = await getToken();
 
       final response = await http.post(

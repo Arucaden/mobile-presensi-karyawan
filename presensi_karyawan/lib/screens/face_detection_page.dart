@@ -86,37 +86,59 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
     isDetecting = true;
 
     try {
-      if (_cameraController == null || !_cameraController!.value.isInitialized) {
-        print("Camera not initialized.");
-        return;
-      }
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(child: CircularProgressIndicator());
+        },
+      );
 
-      // Capture an image from the camera
-      XFile picture = await _cameraController!.takePicture();
+      // Capture image
+      final XFile imageFile = await _cameraController!.takePicture();
 
-      // Create InputImage from the captured file
-      final inputImage = InputImage.fromFilePath(picture.path);
+      // Convert XFile to File
+      final File file = File(imageFile.path);
 
-      // Detect faces
-      final List<Face> faces = await _faceDetector.processImage(inputImage);
+      // Send face data to server and get the response message
+      final String responseMessage = await _faceDetectionService.sendFaceData(file);
 
-      if (faces.isNotEmpty) {
-        print("Face(s) detected: ${faces.length}");
+      // Dismiss loading indicator
+      Navigator.of(context).pop();
 
-        // Convert captured image to File
-        final imageFile = File(picture.path);
-
-        // Send data to backend via FaceDetectionService
-        final message = await _faceDetectionService.sendFaceData(imageFile);
-        print(message);
-      } else {
-        print("No faces detected.");
-      }
+      // Show response message in a dialog
+      _showResponseDialog(responseMessage);
     } catch (e) {
-      print('Error detecting faces: $e');
+      // Dismiss loading indicator
+      Navigator.of(context).pop();
+
+      // Show error message in dialog
+      _showResponseDialog('Error: ${e.toString()}');
     } finally {
       isDetecting = false;
     }
+  }
+
+  void _showResponseDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Presensi'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Optionally, navigate to another page or reset the camera
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

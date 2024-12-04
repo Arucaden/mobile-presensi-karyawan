@@ -4,24 +4,18 @@ class AttendanceHistory {
   final int idAbsensi;
   final int karyawanId;
   final DateTime tanggal;
-  final String absenMasuk;
-  final String absenKeluar;
-  final String hadir;
-  final String sakit;
-  final String izin;
-  final String alpha;
+  final DateTime jam_masuk;
+  final String jam_keluar;
+  final int hadir;
   final String? keterangan;
 
   AttendanceHistory({
     required this.idAbsensi,
     required this.karyawanId,
     required this.tanggal,
-    required this.absenMasuk,
-    required this.absenKeluar,
+    required this.jam_masuk,
+    required this.jam_keluar,
     required this.hadir,
-    required this.sakit,
-    required this.izin,
-    required this.alpha,
     this.keterangan,
   });
 
@@ -31,12 +25,9 @@ class AttendanceHistory {
       idAbsensi: json['id_absensi'],
       karyawanId: json['karyawan_id'],
       tanggal: DateTime.parse(json['tanggal']),
-      absenMasuk: json['absen_masuk'],
-      absenKeluar: json['absen_keluar'],
-      hadir: json['hadir'],
-      sakit: json['sakit'],
-      izin: json['izin'],
-      alpha: json['alpha'],
+      jam_masuk: json['jam_masuk'],
+      jam_keluar: json['jam_keluar'],
+      hadir: int.parse(json['total_hadir'].toString()),
       keterangan: json['keterangan'],
     );
   }
@@ -47,12 +38,9 @@ class AttendanceHistory {
       'id_absensi': idAbsensi,
       'karyawan_id': karyawanId,
       'tanggal': tanggal.toIso8601String(),
-      'absen_masuk': absenMasuk,
-      'absen_keluar': absenKeluar,
+      'absen_masuk': jam_masuk,
+      'absen_keluar': jam_keluar,
       'hadir': hadir,
-      'sakit': sakit,
-      'izin': izin,
-      'alpha': alpha,
       'keterangan': keterangan,
     };
   }

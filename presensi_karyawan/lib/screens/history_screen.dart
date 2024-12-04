@@ -160,8 +160,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       itemBuilder: (context, index) {
         final attendance = filteredData[index];
         final date = attendance['tanggal'];
-        final totalHours = attendance['jam'] ?? 0;
-        final aisData = totalHours > 0 ? attendance['AIS'] : '-';
+        final totalHours = attendance['hadir'] ?? 0;
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -211,7 +210,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             children: [
                               Icon(Icons.arrow_forward, color: Colors.deepPurple),
                               SizedBox(width: 4),
-                              Text('Masuk: ${attendance['absen_masuk'] ?? '-'}'),
+                              Text('Masuk: ${attendance['jam_masuk'] ?? '-'}'),
                             ],
                           ),
                           SizedBox(height: 8),
@@ -220,7 +219,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             children: [
                               Icon(Icons.arrow_back, color: Colors.red[300]),
                               SizedBox(width: 4),
-                              Text('Pulang: ${attendance['absen_keluar'] ?? '-'}'),
+                              Text('Pulang: ${attendance['jam_keluar'] ?? '-'}'),
                             ],
                           ),
                           SizedBox(height: 8),
