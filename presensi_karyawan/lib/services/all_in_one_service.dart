@@ -6,7 +6,7 @@ import 'package:presensi_karyawan/models/rekap_absensi_model.dart';
 
 class AllInOneService {
   // Ganti URL dengan endpoint API Anda
-  static const String baseUrl = 'http://192.168.18.141:8000/api';
+  static const String baseUrl = 'http://172.16.70.33:8000/api';
 
   // Instance untuk menyimpan token
   final _storage = const FlutterSecureStorage();
@@ -94,7 +94,7 @@ class AllInOneService {
   }
 
   Future<Map<String, dynamic>> getRekapByLoggedInUser() async {
-    final token = await getToken(); // Get the token from storage
+    final token = await getToken();
 
     if (token == null) {
       return {'success': false, 'message': 'Token not found'};
@@ -115,9 +115,8 @@ class AllInOneService {
         final data = jsonDecode(response.body);
 
         if (data['success'] == true) {
-          // Parse the data into RekapAbsensi model
-          final rekapAbsensi = RekapAbsensi.fromJson(data['data']);
-          return {'success': true, 'data': rekapAbsensi};
+          // Return the raw data
+          return {'success': true, 'data': data['data']};
         } else {
           return {'success': false, 'message': data['message']};
         }
@@ -164,10 +163,10 @@ class AllInOneService {
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        return responseData['message'] ?? 'Face recognized successfully';
+        return responseData['message'] ?? 'Wajah dikenali';
       } else if (response.statusCode == 401) {
         final responseData = json.decode(response.body);
-        return responseData['message'] ?? 'Face not recognized.';
+        return responseData['message'] ?? 'Wajah tidak dikenali.';
       } else if (response.statusCode == 400) {
         final responseData = json.decode(response.body);
         return responseData['message'] ?? 'Invalid input.';

@@ -15,6 +15,8 @@ class FaceDetectionPage extends StatefulWidget {
 class _FaceDetectionPageState extends State<FaceDetectionPage> {
   CameraController? _cameraController;
   bool isDetecting = false;
+  bool isFlashOn = false;
+  bool isFrontCamera = true;
   late FaceDetector _faceDetector;
   List<CameraDescription> cameras = [];
   int selectedCameraIndex = 0;
@@ -35,7 +37,7 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
     );
   }
 
-  @override
+   @override
   void dispose() {
     _cameraController?.dispose();
     _faceDetector.close();
@@ -46,7 +48,7 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
     try {
       cameras = await availableCameras();
       if (cameras.isNotEmpty) {
-        _initializeCamera(selectedCameraIndex);
+        _initializeCamera(isFrontCamera ? _getFrontCamera() : _getBackCamera());
       } else {
         print("No cameras available.");
       }
@@ -55,17 +57,23 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
     }
   }
 
-  Future<void> _initializeCamera(int cameraIndex) async {
+   CameraDescription _getFrontCamera() {
+    return cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.front);
+  }
+
+  CameraDescription _getBackCamera() {
+    return cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.back);
+  }
+
+  Future<void> _initializeCamera(CameraDescription cameraDescription) async {
     if (_cameraController != null) {
       await _cameraController!.dispose();
     }
-
-    _cameraController = CameraController(
-      cameras[cameraIndex],
+        _cameraController = CameraController(
+      cameraDescription,
       ResolutionPreset.medium,
       enableAudio: false,
     );
-
     try {
       await _cameraController!.initialize();
       if (!mounted) return;
@@ -76,9 +84,20 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
     }
   }
 
-  void _switchCamera() {
-    selectedCameraIndex = (selectedCameraIndex + 1) % cameras.length;
-    _initializeCamera(selectedCameraIndex);
+  void _switchCamera() async {
+    isFrontCamera = !isFrontCamera;
+    await _initializeCamera(isFrontCamera ? _getFrontCamera() : _getBackCamera());
+  }
+
+  void _toggleFlash() {
+    if (_cameraController != null) {
+      setState(() {
+        isFlashOn = !isFlashOn;
+        _cameraController!.setFlashMode(
+          isFlashOn ? FlashMode.torch : FlashMode.off,
+        );
+      });
+    }
   }
 
   Future<void> _captureAndDetectFaces() async {
@@ -144,37 +163,65 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Face Recognition Attendance'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.switch_camera),
-            onPressed: _switchCamera, // Switch camera when tapped
-          ),
-        ],
-      ),
+      backgroundColor: Colors.deepPurple[50],
       body: Stack(
         children: [
           if (_cameraController != null && _cameraController!.value.isInitialized)
             CameraPreview(_cameraController!),
           if (_cameraController == null || !_cameraController!.value.isInitialized)
-            Center(child: CircularProgressIndicator()),
+            const Center(child: CircularProgressIndicator()),
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.all(20.0),
-              child: ElevatedButton(
-                onPressed: _captureAndDetectFaces, // Capture and process image
-                style: ElevatedButton.styleFrom(
-                  shape: CircleBorder(),
-                  padding: EdgeInsets.all(20),
-                  backgroundColor: Colors.blue, // Background color
-                ),
-                child: Icon(
-                  Icons.camera_alt,
-                  size: 50,
-                  color: Colors.white,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: _switchCamera, // Switch camera when tapped
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(20),
+                      backgroundColor: Colors.deepPurple[50], // Background color
+                      elevation: 0,
+                    ),
+                    child: const Icon(
+                      Icons.sync,
+                      size: 30,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  ElevatedButton(
+                    onPressed: _captureAndDetectFaces, // Capture and process image
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(20),
+                      backgroundColor: Colors.white, // Background color
+                      elevation: 0,
+                    ),
+                    child: const Icon(
+                      Icons.camera_alt,
+                      size: 50,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  ElevatedButton(
+                    onPressed: _toggleFlash, // Toggle flashlight
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(20),
+                      backgroundColor: Colors.deepPurple[50],
+                      elevation: 0, // Background color
+                    ),
+                    child: Icon(
+                      isFlashOn ? Icons.flash_on : Icons.flash_off,
+                      size: 30,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

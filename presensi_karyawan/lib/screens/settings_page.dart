@@ -35,7 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Konfirmasi Logout'),
+          title: const Text('Konfirmasi Keluar'),
           content: const Text('Apakah anda yakin ingin keluar?'),
           actions: [
             TextButton(
@@ -56,7 +56,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   );
                 }
               },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
               child: const Text('Keluar', style: TextStyle(color: Colors.white)),
             ),
           ],
@@ -112,7 +112,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       style: const TextStyle(
                                         fontSize: 40,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.purple,
+                                        color: Colors.deepPurple,
                                       ),
                                     ),
                                   ),
@@ -133,41 +133,44 @@ class _SettingsPageState extends State<SettingsPage> {
                         const SizedBox(height: 20),
                         // Informasi karyawan
                         ListTile(
-                          leading: const Icon(Icons.cake, color: Colors.purple),
+                          leading: const Icon(Icons.cake, color: Colors.deepPurple),
                           title: Text('Tanggal Lahir: ${_karyawan!.tanggalLahir}'),
                         ),
                         ListTile(
-                          leading: const Icon(Icons.phone, color: Colors.purple),
+                          leading: const Icon(Icons.phone, color: Colors.deepPurple),
                           title: Text('No Telepon: ${_karyawan!.noTelepon}'),
                         ),
                         ListTile(
-                          leading: const Icon(Icons.email, color: Colors.purple),
+                          leading: const Icon(Icons.email, color: Colors.deepPurple),
                           title: Text('Email: ${_karyawan!.email}'),
                         ),
                         ListTile(
-                          leading: const Icon(Icons.work, color: Colors.purple),
+                          leading: const Icon(Icons.work, color: Colors.deepPurple),
                           title: Text('Jabatan: ${_karyawan!.posisi?.namaPosisi ?? "-"}'),
                         ),
                         const Spacer(),
-                        // Tombol Logout
-                        ElevatedButton(
-                          onPressed: () {
-                            _showLogoutDialog(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purple,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
+                        // Padding around the Logout button
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _showLogoutDialog(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red[300],
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                              ),
+                              minimumSize: const Size(double.infinity, 50),
                             ),
-                            minimumSize: const Size(double.infinity, 50),
-                          ),
-                          child: const Text(
-                            'Logout',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                            child: const Text(
+                              'Keluar',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),

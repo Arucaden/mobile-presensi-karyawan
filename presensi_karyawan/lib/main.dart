@@ -16,9 +16,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Attendance App',
+      title: 'Aplikasi Presensi',
       theme: ThemeData(
-        primarySwatch: Colors.purple,
+        primarySwatch: Colors.deepPurple,
       ),
       initialRoute: '/',
       routes: {
@@ -50,10 +50,10 @@ class _MainScreenState extends State<MainScreen> {
 
   // List judul halaman sesuai dengan tab
   final List<String> _titles = [
-    'View Attendance',
-    'Rekap Attendance',
-    'Presensi',
-    'Setting'
+    'Riwayat Presensi',
+    'Rekap Kehadiran',
+    'Presensi Wajah',
+    'Profil'
   ];
 
   @override
@@ -70,24 +70,24 @@ class _MainScreenState extends State<MainScreen> {
             _currentIndex = index; // Mengubah tab yang aktif
           });
         },
-        selectedItemColor: Colors.purple,
+        selectedItemColor: Colors.deepPurple,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.history),
-            label: 'View Attendance',
+            label: 'Riwayat Presensi',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart),
-            label: 'Rekap',
+            label: 'Rekap Kehadiran',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.camera_alt),
             label: 'Presensi',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.person),
+            label: 'Profil',
           ),
         ],
       ),

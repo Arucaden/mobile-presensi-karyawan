@@ -55,11 +55,11 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             Center(
               child: Text(
-                'SMK',
+                'PresenSee',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.purple, // Warna ungu
+                  color: Colors.deepPurple, // Warna ungu
                 ),
               ),
             ),
@@ -100,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 : ElevatedButton(
                     onPressed: _login,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple, // Warna ungu
+                      backgroundColor: Colors.deepPurple, // Warna ungu
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),

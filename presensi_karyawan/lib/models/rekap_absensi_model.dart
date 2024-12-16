@@ -15,7 +15,6 @@ class RekapAbsensi {
     required this.totalAlpha,
   });
 
-  // Factory method to parse from JSON
   factory RekapAbsensi.fromJson(Map<String, dynamic> json) {
     return RekapAbsensi(
       karyawanId: json['karyawan_id'] ?? 0,
@@ -27,9 +26,8 @@ class RekapAbsensi {
     );
   }
 
-  // Method to convert to JSON
-  Map<String, dynamic> toJson() {
-    return {
+    Map<String, dynamic> toJson() {
+    final jsonData = {
       'karyawan_id': karyawanId,
       'bulan': bulan,
       'total_hadir': totalHadir,
@@ -37,5 +35,7 @@ class RekapAbsensi {
       'total_izin': totalIzin,
       'total_alpha': totalAlpha,
     };
+    print('Converting model to JSON: $jsonData'); // Log the model being converted to JSON
+    return jsonData;
   }
 }
