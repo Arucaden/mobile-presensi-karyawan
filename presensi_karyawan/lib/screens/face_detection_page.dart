@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -20,6 +19,7 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
   late FaceDetector _faceDetector;
   List<CameraDescription> cameras = [];
   int selectedCameraIndex = 0;
+  int statusCode = 0;
 
   // Instance of AllInOneService
   final _faceDetectionService = AllInOneService();
@@ -122,37 +122,73 @@ class _FaceDetectionPageState extends State<FaceDetectionPage> {
 
       // Send face data to server and get the response message
       final String responseMessage = await _faceDetectionService.sendFaceData(file);
+      
+      statusCode = 500;
+      String message = responseMessage;
+
+          if (message.contains("berhasil")) {
+            statusCode = 200;
+          } else if (message.contains("Error") || message.contains("Gagal") || message.contains("error") || message.contains("gagal")) {
+            statusCode = 500;
+          } else {
+            statusCode = 400; // Misal unknown error
+          }
 
       // Dismiss loading indicator
       Navigator.of(context).pop();
 
       // Show response message in a dialog
-      _showResponseDialog(responseMessage);
+      _showResponseDialog(message, statusCode); // Assuming 200 as a placeholder status code
     } catch (e) {
       // Dismiss loading indicator
       Navigator.of(context).pop();
 
       // Show error message in dialog
-      _showResponseDialog('Error: ${e.toString()}');
+      _showResponseDialog('Error: ${e.toString()}', statusCode); // Assuming 500 as a placeholder error status code
     } finally {
       isDetecting = false;
     }
   }
 
-  void _showResponseDialog(String message) {
+  void _showResponseDialog(String message, int statusCode) {
+    Icon icon;
+    
+    // Tentukan ikon berdasarkan statusCode
+    if (statusCode == 200) {
+      icon = Icon(Icons.check_circle, color: Colors.green, size: 64);
+    } else if (statusCode == 500) {
+      icon = Icon(Icons.error, color: Colors.red, size: 64);
+    } else {
+      icon = Icon(Icons.info, color: Colors.yellow[800], size: 64);
+    }
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Presensi'),
-          content: Text(message),
+          title: const Text(
+            'Presensi',
+            textAlign: TextAlign.center,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              icon,
+              const SizedBox(height: 20),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // Optionally, navigate to another page or reset the camera
               },
-              child: const Text('OK'),
+              child: const Text('Keluar'),
             ),
           ],
         );

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:presensi_karyawan/models/rekap_absensi_model.dart';
 import 'package:presensi_karyawan/services/all_in_one_service.dart';
 
 class RekapScreen extends StatefulWidget {

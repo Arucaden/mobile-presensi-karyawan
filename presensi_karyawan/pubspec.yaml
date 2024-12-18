@@ -1,5 +1,5 @@
 name: presensi_karyawan
-description: "A new Flutter project."
+description: "Presensi modern berbasis AI untuk check-in dan check-out otomatis. Cepat, akurat, dan tanpa kontak fisik, mendukung manajemen kehadiran yang cerdas dan efisien!"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -35,9 +35,6 @@ dependencies:
   cupertino_icons: ^1.0.8
   google_mlkit_face_detection: ^0.12.0
   http: ^1.2.2
-  tflite_flutter: ^0.11.0
-  image: ^4.3.0
-  image_picker: ^1.1.2
   flutter_secure_storage: ^9.2.2
 
 
@@ -64,8 +61,6 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  assets:
-
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

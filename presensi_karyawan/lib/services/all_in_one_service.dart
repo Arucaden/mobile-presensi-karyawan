@@ -2,11 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:presensi_karyawan/models/rekap_absensi_model.dart';
 
 class AllInOneService {
   // Ganti URL dengan endpoint API Anda
-  static const String baseUrl = 'http://172.16.70.33:8000/api';
+  static const String baseUrl = 'https://presentsee.my.id/api';
 
   // Instance untuk menyimpan token
   final _storage = const FlutterSecureStorage();
@@ -164,19 +163,15 @@ class AllInOneService {
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         return responseData['message'] ?? 'Wajah dikenali';
-      } else if (response.statusCode == 401) {
+      } else if (response.statusCode == 500) {
         final responseData = json.decode(response.body);
-        return responseData['message'] ?? 'Wajah tidak dikenali.';
-      } else if (response.statusCode == 400) {
-        final responseData = json.decode(response.body);
-        return responseData['message'] ?? 'Invalid input.';
+        return responseData['message'] ?? 'Error.';
       } else {
         final responseData = json.decode(response.body);
-        return responseData['message'] ?? 'An error occurred.';
+        return responseData['message'] ?? 'Unknown Error';
       }
     } catch (e) {
-      print('Error sending face data: $e');
-      return 'Failed to send face data.';
+      return 'Gagal mengirim data wajah. Error: $e';
     }
   }
 
