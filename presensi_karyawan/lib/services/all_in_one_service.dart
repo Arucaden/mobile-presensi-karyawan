@@ -30,6 +30,8 @@ class AllInOneService {
         return {'success': true, 'message': 'Login berhasil'};
       } else if (response.statusCode == 401) {
         return {'success': false, 'message': 'Email atau password salah'};
+      } else if (response.statusCode == 429) {
+        return {'success': false, 'message': 'Terlalu banyak percobaan login. Coba lagi nanti.'};
       } else {
         return {'success': false, 'message': 'Login gagal. Coba lagi.'};
       }
@@ -43,7 +45,8 @@ class AllInOneService {
   }
 
   Future<void> logout() async {
-    final token = await _storage.read(key: 'access_token'); // Ambil token dari storage
+    final token =
+        await _storage.read(key: 'access_token'); // Ambil token dari storage
 
     if (token != null) {
       final response = await http.post(
@@ -191,7 +194,8 @@ class AllInOneService {
       if (response.statusCode == 200) {
         return json.decode(response.body)['data'];
       } else {
-        throw Exception("Gagal memuat data karyawan. Status: ${response.statusCode}");
+        throw Exception(
+            "Gagal memuat data karyawan. Status: ${response.statusCode}");
       }
     } catch (e) {
       throw Exception("Error: $e");
